@@ -23,16 +23,22 @@ server.get('/', (req, res) => {
 
 // add zoo
 server.post('/api/zoos', (req, res) => {
-  db('zoos')
-    .insert(req.body)
-    .then(ids => {
-      db('zoos')
-        .where({ id: ids[0]})
-        .then(zoo => {
-          res.status(201).json(zoo)
-        });
-    })
-    .catch(err => res.status(500).json(err));
+  const { name } = req.body;
+  console.log(name)
+  if(name.length) {
+    db('zoos')
+      .insert(req.body)
+      .then(ids => {
+        db('zoos')
+          .where({ id: ids[0]})
+          .then(zoo => {
+            res.status(201).json(zoo)
+          });
+      })
+      .catch(err => res.status(500).json(err));
+
+  } else { res.status(400).json({message: "Must include a name"})}
+  
 })
 
 // list zoos
