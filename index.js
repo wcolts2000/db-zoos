@@ -24,7 +24,7 @@ server.get('/', (req, res) => {
 // add zoo
 server.post('/api/zoos', (req, res) => {
   const { name } = req.body;
-  console.log(name)
+  
   if(name.length) {
     db('zoos')
       .insert(req.body)
@@ -35,7 +35,7 @@ server.post('/api/zoos', (req, res) => {
             res.status(201).json(zoo)
           });
       })
-      .catch(err => res.status(500).json(err));
+      .catch(err => res.status(500).json({message: "there was an error posting the zoo info"}));
 
   } else { res.status(400).json({message: "Must include a name"})}
   
@@ -47,7 +47,7 @@ server.get('/api/zoos', (req, res) => {
     .then(zoos => {
       res.status(200).json(zoos)
     })
-    .catch(err => res.status(500).json(err))
+    .catch(err => res.status(500).json({message: "there was an error retrieving the zoos info requested"}))
 })
 
 // list single zoo
@@ -61,24 +61,29 @@ server.get('/api/zoos/:id', (req, res) => {
         res.status(404).json({ message: "No zoo found with that id"})
       }
     })
-    .catch(err => res.status(500).json(err))
+    .catch(err => res.status(500).json({message: "there was an error retrieving the zoo info requested"}))
 })
 
 // update zoo
 server.put('/api/zoos/:id', (req, res) => {
   const changedZoo = req.body;
+  console.log(changedZoo);
+  
 
-  db('zoos')
-    .where({ id: req.params.id})
-    .update(changedZoo)
-    .then(count => {
-      if(count) {
-        res.status(200).json(count);
-      } else {
-        res.status(404).json({ message: "No zoo found with that id"})
-      }
-    })
-    .catch(err => res.status(500).json(err))
+  if(changedZoo.name.length) {
+    db('zoos')
+      .where({ id: req.params.id})
+      .update(changedZoo)
+      .then(count => {
+        if(count) {
+          res.status(200).json(count);
+        } else {
+          res.status(404).json({ message: "No zoo found with that id"})
+        }
+      })
+      .catch(err => res.status(500).json({message: "there was an error updating the zoo"}))
+  } else {res.status(400).json({ message: "Must provide name updates..."})}
+
 })
 
 // delete zoo
@@ -87,9 +92,13 @@ server.delete('/api/zoos/:id', (req, res) => {
     .where({ id: req.params.id})
     .del()
     .then(count => {
-      res.status(200).json(count)
+      if(count) {
+        res.status(200).json(count)
+      } else {
+        res.status(404).json({ message: "no zoo found with that id"})
+      }
     })
-    .catch(err => res.status(500).json(err))
+    .catch(err => res.status(500).json({message: "there was an error deleting the zoo"}))
 })
 
 const port = 3300;
