@@ -44,13 +44,30 @@ server.get('/api/zoos', (req, res) => {
     .catch(err => res.status(500).json(err))
 })
 
-// single zoo
+// list single zoo
 server.get('/api/zoos/:id', (req, res) => {
   db('zoos')
     .where({ id: req.params.id})
     .then(zoo => {
       if(zoo.length) {
         res.status(200).json(zoo)
+      } else {
+        res.status(404).json({ message: "No zoo found with that id"})
+      }
+    })
+    .catch(err => res.status(500).json(err))
+})
+
+// update zoo
+server.put('/api/zoos/:id', (req, res) => {
+  const changedZoo = req.body;
+
+  db('zoos')
+    .where({ id: req.params.id})
+    .update(changedZoo)
+    .then(count => {
+      if(count) {
+        res.status(200).json(count);
       } else {
         res.status(404).json({ message: "No zoo found with that id"})
       }
