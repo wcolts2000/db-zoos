@@ -7,5 +7,6 @@ module.exports = server => {
   server.use(express.json());
   server.use(morgan('short'));
   server.use(helmet());
+  server.use(cors());
   server.use(express.json());
 }
